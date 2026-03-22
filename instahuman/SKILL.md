@@ -63,7 +63,6 @@ proof_of_completion:            object | null, optional
   method:         "password"
   password:       string
 variants:                       array, required (min 1)
-  name:                 string, required
   description:          string, required (task instructions)
   description_mime_type: "text/plain" | "text/markdown", optional
   url:                  string, optional (URL testers visit)
@@ -86,7 +85,7 @@ variants:                       array, required (min 1)
     values:   string[]
 ```
 
-**Output:** `{ job: { id, title, status, variants: [{ id, name, targetTestersMin, assignmentCount, completedCount }] } }`
+**Output:** `{ job: { id, title, status, variants: [{ id, targetTestersMin, assignmentCount, completedCount }] } }`
 
 ### wait_job
 
@@ -97,7 +96,6 @@ Block until a job reaches a terminal state (completed, cancelled, or paused). Re
 ```
 job_id:           string uuid, required
 timeout_ms:       integer, optional (default 1h, max 24h)
-poll_interval_ms: integer, optional (default 10s, min 250ms, max 60s)
 ```
 
 **Output:** `{ job: { ...jobFields, variants: [{ ...variantFields, completedAssignments: [{ assignmentId, testerId, status, completedAt, durationMinutes, feedbackData }] }] } }`
