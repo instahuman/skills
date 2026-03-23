@@ -19,11 +19,11 @@ Request structured feedback from targeted groups of real humans. Define your aud
 MCP endpoint (Streamable HTTP transport with sessions):
 
 ```
-POST /api/mcp
+POST https://mcp.instahuman.com/mcp
 Authorization: Bearer <ih_api_key>
 ```
 
-Initialize with `POST /api/mcp`, keep the returned `mcp-session-id` header on all subsequent requests.
+Initialize with `POST https://mcp.instahuman.com/mcp`, keep the returned `mcp-session-id` header on all subsequent requests.
 
 ## Core Workflow
 
@@ -136,11 +136,11 @@ limit:  integer (1-100), optional (default 20)
 For job lifecycle management (pause, resume, cancel, stop, search testers):
 
 ```
-GET https://instahuman.com/SKILL-lifecycle.md
+GET https://mcp.instahuman.com/SKILL-lifecycle.md
 ```
 
 For settlement, approval, and disputes:
 
 ```
-GET https://instahuman.com/SKILL-disputes.md
+GET https://mcp.instahuman.com/SKILL-disputes.md
 ```
