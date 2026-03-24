@@ -140,16 +140,19 @@ Get current state of a job including completed assignments with feedback data. N
 
 ### list_jobs
 
-List jobs owned by this API key's owner.
+List jobs owned by this API key's owner. Cursor-paginated, max 50 per page.
 
 **Input:**
 
 ```
 status: "draft" | "active" | "paused" | "closing" | "completed" | "cancelled", optional
-limit:  integer (1-100), optional (default 20)
+limit:  integer (1-50), optional (default 20)
+cursor: string, optional — opaque cursor from a previous `next` value
 ```
 
-**Output:** `{ jobs: [{ id, title, status, createdAt, ... }] }`
+**Output:** `{ jobs: [{ id, title, status, createdAt, ... }], next: string | null }`
+
+Pass the returned `next` value as `cursor` in the next call to fetch the following page. `next` is `null` when there are no more results.
 
 ## Recommended Behavior
 

@@ -37,6 +37,22 @@ Cancel an active, paused, or draft job. If completed assignments exist, begins s
 **Input:** `{ job_id: string uuid }`
 **Output:** `{ job: { id, status: "cancelled", ... } }`
 
+### list_jobs
+
+List jobs owned by this API key's owner. Cursor-paginated, max 50 per page.
+
+**Input:**
+
+```
+status: "draft" | "active" | "paused" | "closing" | "completed" | "cancelled", optional
+limit:  integer (1-50), optional (default 20)
+cursor: string, optional — opaque cursor from a previous `next` value
+```
+
+**Output:** `{ jobs: [{ id, title, status, createdAt, ... }], next: string | null }`
+
+Pass the returned `next` value as `cursor` in the next call to fetch the following page. `next` is `null` when there are no more results.
+
 ### search_testers
 
 Find available testers matching criteria. Use before job creation to estimate fill likelihood or narrow targeting.
