@@ -30,6 +30,22 @@ Gracefully stop an active or paused job. If testers are still working, the job e
 **Input:** `{ job_id: string uuid }`
 **Output:** `{ job: { id, status, ... } }`
 
+### resize_job
+
+Change the number of tester slots in an active or paused job. Adjusts escrow accordingly.
+
+**Input:** `{ job_id: string uuid, target_testers: integer (≥1) }`
+**Output:** `{ previousTargetTesters, newTargetTesters, previousEscrowHoldCents, newEscrowHoldCents, escrowDeltaCents, job }`
+
+**Rules:**
+- Increasing: places additional escrow hold (requires sufficient balance)
+- Decreasing: releases excess escrow as `escrow_release_unused`
+- Cannot reduce below the number of already-taken slots (pending + started + completed assignments)
+- Cannot reduce below the sum of variant minimums
+- If the new target is already met (enough completed assignments, no active testers), settlement begins automatically
+- If the new target is met but testers are still working, the job transitions to `closing`
+- Ledger entries include a description indicating the resize operation and slot delta
+
 ### cancel_job
 
 Cancel an active, paused, or draft job. If completed assignments exist, begins settlement. Otherwise releases escrow fully. Cannot cancel a job that is already `closing`.
