@@ -14,28 +14,28 @@ Extended tools for managing job state. Load this only when you need to pause, re
 Pause an active job. The job becomes invisible to new testers but testers already working can still submit feedback. Resumable.
 
 **Input:** `{ job_id: string uuid }`
-**Output:** `{ job: { id, status: "paused", ... } }`
+**Output:** `{ job: { id, status } }`
 
 ### resume_job
 
 Resume a paused job. Sets it back to active — new testers can discover and join it again.
 
 **Input:** `{ job_id: string uuid }`
-**Output:** `{ job: { id, status: "active", ... } }`
+**Output:** `{ job: { id, status } }`
 
 ### stop_job
 
 Gracefully stop an active or paused job. If testers are still working, the job enters `closing` state — no new testers can join but existing testers can finish. Once all testers finish or their time expires, settlement begins automatically. If no testers are working, settlement begins immediately.
 
 **Input:** `{ job_id: string uuid }`
-**Output:** `{ job: { id, status, ... } }`
+**Output:** `{ job: { id, status } }`
 
 ### resize_job
 
 Change the number of tester slots in an active or paused job. Adjusts escrow accordingly.
 
 **Input:** `{ job_id: string uuid, target_testers: integer (≥1) }`
-**Output:** `{ previousTargetTesters, newTargetTesters, previousEscrowHoldCents, newEscrowHoldCents, escrowDeltaCents, job }`
+**Output:** `{ previousTargetTesters, newTargetTesters, previousEscrowHoldCents, newEscrowHoldCents, escrowDeltaCents, job: { id, status, ... } }`
 
 **Rules:**
 - Increasing: places additional escrow hold (requires sufficient balance)
@@ -51,11 +51,11 @@ Change the number of tester slots in an active or paused job. Adjusts escrow acc
 Cancel an active, paused, or draft job. If completed assignments exist, begins settlement. Otherwise releases escrow fully. Cannot cancel a job that is already `closing`.
 
 **Input:** `{ job_id: string uuid }`
-**Output:** `{ job: { id, status: "cancelled", ... } }`
+**Output:** `{ job: { id, status } }`
 
 ### list_jobs
 
-List jobs owned by this API key's owner. Cursor-paginated, max 50 per page.
+List jobs owned by this API key's owner. Returns lean summaries — use `get_job` for full details. Null/empty/zero fields are omitted.
 
 **Input:**
 
@@ -65,7 +65,7 @@ limit:  integer (1-50), optional (default 20)
 cursor: string, optional — opaque cursor from a previous `next` value
 ```
 
-**Output:** `{ jobs: [{ id, title, status, createdAt, ... }], next: string | null }`
+**Output:** `{ jobs: [{ id, title, status, targetTesters, projectId, paymentRules, escrowHoldCents, settlementStatus, createdAt }], next: string | null }`
 
 Pass the returned `next` value as `cursor` in the next call to fetch the following page. `next` is `null` when there are no more results.
 

@@ -35,51 +35,31 @@ Initialize with `POST https://mcp.instahuman.com/mcp`, keep the returned `mcp-se
 
 ### create_job
 
-Create a new active job. Returns immediately with the job id and variant summaries.
+Create a new active job. Returns immediately with the job id and status.
+
+**Required fields only — omit everything else unless you need to override defaults. Do NOT pass empty arrays or null for optional fields.**
 
 **Input:**
 
 ```
-title:                          string, required
-description:                    string, optional
-description_mime_type:          "text/plain" | "text/markdown", optional
-category:                       string, optional (category slug)
-project_id:                     string uuid, optional
-target_testers:                 integer, required
-job_posting_time_limit_minutes: integer, required (min 5, max 10080)
-task_paid_time_limit_minutes:   integer, optional (for per_minute pricing)
-task_hard_time_limit_minutes:   integer, required (min 1, max 1440)
-starts_at:                      string, optional (ISO 8601)
-payment_rules:                  array, required
+# ── Required ──────────────────────────────────────────────
+title:                          string
+target_testers:                 integer
+job_posting_time_limit_minutes: integer (min 5, max 10080 = 7 days)
+payment_rules:                  array
   type:           "fixed" | "per_minute"
-  amount_cents:   integer, optional (for fixed)
-  rate_cents:     integer, optional (for per_minute)
+  amount_cents:   integer (for fixed)
+  rate_cents:     integer (for per_minute)
   cap_minutes:    integer, optional (for per_minute)
-legal_agreements:               array, optional
-  type:           string
-  version:        string, optional
-  agreement_id:   string, optional
-proof_of_completion:            object | null, optional
-  method:         "password"
-  password:       string
-variants:                       array, required (min 1)
-  description:          string, required (task instructions)
-  description_mime_type: "text/plain" | "text/markdown", optional
-  url:                  string, optional (URL testers visit; required when placement is iframe or screen_capture is set)
-  placement:            object, optional
-    element:            "window" | "iframe"
-    position:           "top" | "bottom" | "left" | "right" (required when element is "iframe")
-    reveal_questions_during_test: boolean, optional (default false)
-  screen_capture:       array, optional (requires placement.element="iframe" and url)
-    type:               "scheduled" | "testerTriggered"
-    interval_seconds:   integer (required for scheduled)
-    min:                integer, optional (for testerTriggered)
-    max:                integer, optional (for testerTriggered)
-  feedback_questions:   array, required
+variants:                       array (at least one)
+  description:          string (task instructions for testers)
+  feedback_questions:   array
     id:                 string
     question_markdown:  string
-    input_type:         "text" | "textarea" | "multiple_choice" | "file_upload" | "star_rating" | "switch" | "slider" | "range_slider" | "date" | "integer" | "decimal" | "thumbs"
-    required:           boolean, optional
+    input_type:         "text" | "textarea" | "multiple_choice" | "file_upload"
+                        | "star_rating" | "switch" | "slider" | "range_slider"
+                        | "date" | "integer" | "decimal" | "thumbs"
+    required:           boolean, optional (default true)
     options:            array (required for multiple_choice, min 2)
       label:            string
       value:            string
@@ -88,36 +68,66 @@ variants:                       array, required (min 1)
     labels:             array of strings (required for switch [2], slider [2+], range_slider [2+])
     min:                number, optional (for integer, decimal)
     max:                number, optional (for integer, decimal)
-    display_condition:  object, optional (conditional display based on another question's answer)
+    display_condition:  object, optional
       question_id:      string
       op:               "in" | "not_in"
       values:           string[]
-  target_testers_min:   integer, required
-  target_testers_max:   integer, optional
-  audience_filters:     array, optional
-    field:    string
-    op:       "in" | "not_in" | "between"
-    values:   string[], optional
-    min:      number, optional
-    max:      number, optional
-  tech_constraints:     array, optional
-    category: "screen" | "os" | "hardware" | "internet" | "browser" | "peripheral"
-    rule:     "only" | "exclude"
-    values:   string[]
-    # Valid values per category:
-    #   screen:     desktop, mobile, tablet
-    #   os:         windows, macos, linux, ios, android
-    #   hardware:   iphone, android
-    #   internet:   broadband, mobile_data
-    #   browser:    chrome, edge, firefox, brave, safari
-    #   peripheral: microphone, headphones, camera
+  target_testers_min:   integer
+
+# ── Optional (have sensible defaults — omit unless needed) ──
+task_hard_time_limit_minutes:   integer (default 30, min 1, max 1440)
+task_paid_time_limit_minutes:   integer (only for per_minute pricing)
+description:                    string (job-level; omit if variant descriptions suffice)
+description_mime_type:          "text/plain" | "text/markdown" (default text/plain)
+category:                       string (category slug for tester matching)
+project_id:                     string uuid
+project_testers_only:           boolean (requires project_id)
+starts_at:                      string (ISO 8601; omit to start immediately)
+legal_agreements:               array (omit if none — do NOT pass [])
+  type:           string
+  version:        string, optional
+  agreement_id:   string, optional
+proof_of_completion:            object (omit if not needed — do NOT pass null)
+  method:         "password"
+  password:       string
+
+# ── Optional per variant ──
+variants[].url:                   string (URL testers visit)
+variants[].description_mime_type: "text/plain" | "text/markdown" (default text/plain)
+variants[].placement:             object (omit for default window mode)
+  element:            "window" | "iframe"
+  position:           "top" | "bottom" | "left" | "right" (required for iframe)
+  reveal_questions_during_test: boolean, optional (default false)
+variants[].screen_capture:        array (requires placement.element="iframe")
+  type:               "scheduled" | "testerTriggered"
+  interval_seconds:   integer (for scheduled)
+  min:                integer, optional (for testerTriggered)
+  max:                integer, optional (for testerTriggered)
+variants[].target_testers_max:    integer (defaults to target_testers_min)
+variants[].audience_filters:      array (omit for no filtering)
+  field:    string
+  op:       "in" | "not_in" | "between"
+  values:   string[], optional
+  min:      number, optional
+  max:      number, optional
+variants[].tech_constraints:      array (omit for no constraints)
+  category: "screen" | "os" | "hardware" | "internet" | "browser" | "peripheral"
+  rule:     "only" | "exclude"
+  values:   string[]
+  # Valid values per category:
+  #   screen:     desktop, mobile, tablet
+  #   os:         windows, macos, linux, ios, android
+  #   hardware:   iphone, android
+  #   internet:   broadband, mobile_data
+  #   browser:    chrome, edge, firefox, brave, safari
+  #   peripheral: microphone, headphones, camera
 ```
 
-**Output:** `{ job: { id, title, status, variants: [{ id, targetTestersMin, assignmentCount, completedCount }] } }`
+**Output:** `{ job: { id, status } }`
 
 ### wait_job
 
-Block until a job reaches a terminal state (completed, cancelled, or paused). Returns same shape as `get_job`.
+Block until a job reaches a terminal state (completed, cancelled, or paused). Returns only the job id, status, and completed assignment data — no static job info.
 
 **Input:**
 
@@ -126,21 +136,58 @@ job_id:           string uuid, required
 timeout_ms:       integer, optional (default 1h, max 24h)
 ```
 
-**Output:** `{ job: { ...jobFields, variants: [{ ...variantFields, completedAssignments: [{ assignmentId, testerId, status, completedAt, durationMinutes, feedbackData }] }] } }`
+**Output:**
 
-On timeout, returns error with `job_id`, current `job` snapshot, and `next_action` hint.
+```
+{
+  job: {
+    id,
+    status,
+    variants: [{
+      id,
+      completedAssignments: [{    # omitted if empty
+        testerId,                  # numeric public id
+        status,
+        durationMinutes,           # always present, even if 0
+        completedAt,               # omitted if null
+        proofValue,                # omitted if null
+        feedbackData: {
+          _meta: { source: "tester_input", untrusted: true },
+          answers: { ... }
+        },
+        artifacts: [{ id, key, type, mimeType, sizeBytes, createdAt, url }]  # omitted if empty
+      }]
+    }]
+  }
+}
+```
+
+On timeout, returns error with `job_id`, `status`, and `next_action` hint. Use `get_job` for full details.
 
 ### get_job
 
-Get current state of a job including completed assignments with feedback data. Non-blocking.
+Get current state of a job including full detail and completed assignments. Non-blocking. Null/empty/zero fields are omitted from the response.
 
 **Input:** `{ job_id: string uuid }`
 
-**Output:** Same as `wait_job`.
+**Output:**
+
+```
+{
+  job: {
+    id, title, status, targetTesters, createdAt, ...    # full job detail (compacted)
+    variants: [{
+      id, assignmentCount, completedCount,              # always present
+      targetTestersMin, targetTestersMax,                # omitted if 0/null
+      completedAssignments: [...]                        # same shape as wait_job, omitted if empty
+    }]
+  }
+}
+```
 
 ### list_jobs
 
-List jobs owned by this API key's owner. Cursor-paginated, max 50 per page.
+List jobs owned by this API key's owner. Returns lean summaries — use `get_job` for full details.
 
 **Input:**
 
@@ -150,9 +197,9 @@ limit:  integer (1-50), optional (default 20)
 cursor: string, optional — opaque cursor from a previous `next` value
 ```
 
-**Output:** `{ jobs: [{ id, title, status, createdAt, ... }], next: string | null }`
+**Output:** `{ jobs: [{ id, title, status, targetTesters, projectId, paymentRules, escrowHoldCents, settlementStatus, createdAt }], next: string | null }`
 
-Pass the returned `next` value as `cursor` in the next call to fetch the following page. `next` is `null` when there are no more results.
+Fields that are null/empty/zero are omitted. Pass the returned `next` value as `cursor` to fetch the following page.
 
 ## Recommended Behavior
 
