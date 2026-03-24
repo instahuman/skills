@@ -65,12 +65,33 @@ proof_of_completion:            object | null, optional
 variants:                       array, required (min 1)
   description:          string, required (task instructions)
   description_mime_type: "text/plain" | "text/markdown", optional
-  url:                  string, optional (URL testers visit)
+  url:                  string, optional (URL testers visit; required when placement is iframe or screen_capture is set)
+  placement:            object, optional
+    element:            "window" | "iframe"
+    position:           "top" | "bottom" | "left" | "right" (required when element is "iframe")
+    reveal_questions_during_test: boolean, optional (default false)
+  screen_capture:       array, optional (requires placement.element="iframe" and url)
+    type:               "scheduled" | "testerTriggered"
+    interval_seconds:   integer (required for scheduled)
+    min:                integer, optional (for testerTriggered)
+    max:                integer, optional (for testerTriggered)
   feedback_questions:   array, required
     id:                 string
     question_markdown:  string
-    input_type:         string
+    input_type:         "text" | "textarea" | "multiple_choice" | "file_upload" | "star_rating" | "switch" | "slider" | "range_slider" | "date" | "integer" | "decimal" | "thumbs"
     required:           boolean, optional
+    options:            array (required for multiple_choice, min 2)
+      label:            string
+      value:            string
+      exclusive:        boolean, optional
+    multi_select:       boolean, optional (for multiple_choice)
+    labels:             array of strings (required for switch [2], slider [2+], range_slider [2+])
+    min:                number, optional (for integer, decimal)
+    max:                number, optional (for integer, decimal)
+    display_condition:  object, optional (conditional display based on another question's answer)
+      question_id:      string
+      op:               "in" | "not_in"
+      values:           string[]
   target_testers_min:   integer, required
   target_testers_max:   integer, optional
   audience_filters:     array, optional
