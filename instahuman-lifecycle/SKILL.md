@@ -1,11 +1,11 @@
 ---
 name: instahuman-lifecycle
-description: Job lifecycle management tools for InstaHuman — pause, resume, cancel, stop, and tester search.
+description: Job lifecycle management tools for InstaHuman — pause, resume, cancel, stop.
 ---
 
 # InstaHuman — Job Lifecycle
 
-Extended tools for managing job state. Load this only when you need to pause, resume, stop, cancel a job, or search for testers.
+Extended tools for managing job state. Load this only when you need to pause, resume, stop, or cancel a job.
 
 ## Tools
 
@@ -52,23 +52,6 @@ cursor: string, optional — opaque cursor from a previous `next` value
 **Output:** `{ jobs: [{ id, title, status, createdAt, ... }], next: string | null }`
 
 Pass the returned `next` value as `cursor` in the next call to fetch the following page. `next` is `null` when there are no more results.
-
-### search_testers
-
-Find available testers matching criteria. Use before job creation to estimate fill likelihood or narrow targeting.
-
-**Input:**
-
-```
-skills:         string[], optional
-location:       string, optional (partial match on country/state)
-category:       string, optional (interest category slug)
-task_embedding: number[] (512-dim), optional (vector similarity search)
-confidence:     number 0-1, optional (default 0.5)
-limit:          integer 1-100, optional (default 10)
-```
-
-**Output:** `{ testers: [{ id, name, skills, location, hourlyRate, bio, similarity? }] }`
 
 ## Job Status Flow
 
