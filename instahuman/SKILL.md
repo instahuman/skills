@@ -101,9 +101,16 @@ variants:                       array, required (min 1)
     min:      number, optional
     max:      number, optional
   tech_constraints:     array, optional
-    category: string
+    category: "screen" | "os" | "hardware" | "internet" | "browser" | "peripheral"
     rule:     "only" | "exclude"
     values:   string[]
+    # Valid values per category:
+    #   screen:     desktop, mobile, tablet
+    #   os:         windows, macos, linux, ios, android
+    #   hardware:   iphone, android
+    #   internet:   broadband, mobile_data
+    #   browser:    chrome, edge, firefox, brave, safari
+    #   peripheral: microphone, headphones, camera
 ```
 
 **Output:** `{ job: { id, title, status, variants: [{ id, targetTestersMin, assignmentCount, completedCount }] } }`
