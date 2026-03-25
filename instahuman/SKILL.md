@@ -192,7 +192,7 @@ List jobs owned by this API key's owner. Returns lean summaries — use `get_job
 **Input:**
 
 ```
-status: "draft" | "active" | "paused" | "closing" | "completed" | "cancelled", optional
+status: "active" | "paused" | "closing" | "completed" | "cancelled", optional
 limit:  integer (1-50), optional (default 20)
 cursor: string, optional — opaque cursor from a previous `next` value
 ```

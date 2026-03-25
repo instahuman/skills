@@ -48,7 +48,7 @@ Change the number of tester slots in an active or paused job. Adjusts escrow acc
 
 ### cancel_job
 
-Cancel an active, paused, or draft job. If completed assignments exist, begins settlement. Otherwise releases escrow fully. Cannot cancel a job that is already `closing`.
+Cancel an active or paused job. If completed assignments exist, begins settlement. Otherwise releases escrow fully. Cannot cancel a job that is already `closing`.
 
 **Input:** `{ job_id: string uuid }`
 **Output:** `{ job: { id, status } }`
@@ -60,7 +60,7 @@ List jobs owned by this API key's owner. Returns lean summaries — use `get_job
 **Input:**
 
 ```
-status: "draft" | "active" | "paused" | "closing" | "completed" | "cancelled", optional
+status: "active" | "paused" | "closing" | "completed" | "cancelled", optional
 limit:  integer (1-50), optional (default 20)
 cursor: string, optional — opaque cursor from a previous `next` value
 ```
@@ -72,8 +72,8 @@ Pass the returned `next` value as `cursor` in the next call to fetch the followi
 ## Job Status Flow
 
 ```
-draft → active → paused → active (resume)
-                → closing → completed (settlement)
+active → paused → active (resume)
+       → closing → completed (settlement)
        → cancelled
 ```
 
