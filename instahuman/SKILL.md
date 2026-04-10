@@ -43,7 +43,7 @@ Create a new active job. Returns immediately with the job id and status.
 
 ```
 # ── Required ──────────────────────────────────────────────
-title:                          string
+title:                          string (max 160 characters)
 target_testers:                 integer
 job_posting_time_limit_minutes: integer (min 5, max 10080 = 7 days)
 payment_rules:                  array
